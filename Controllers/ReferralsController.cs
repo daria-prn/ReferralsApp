@@ -24,7 +24,7 @@ namespace ReferralsApp.Controllers
         {
             if (_dbContext.Referrals == null)
             {
-                return NotFound();
+                return NotFound("There are no items to display");
             }
             return await _dbContext.Referrals.ToListAsync();
         }
@@ -37,7 +37,7 @@ namespace ReferralsApp.Controllers
             var referral = await _dbContext.Referrals.FindAsync(id);
             if (referral == null)
             {
-                return NotFound();
+                return NotFound("The referral does not exist");
             }
             return referral;
         }
@@ -51,6 +51,7 @@ namespace ReferralsApp.Controllers
             await _dbContext.SaveChangesAsync();
             return CreatedAtAction(nameof(GetReferral), new { id = referral.Id }, referral);
         }
+
 
         //PUT : api/Referrals/ReferralId
         [HttpPut("{id}")]
@@ -69,24 +70,41 @@ namespace ReferralsApp.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ReferralExists(id))
+                if (!(_dbContext.Referrals?.Any(e => e.Id == id)).GetValueOrDefault())
                 {
-                    return NotFound();
+                    return NotFound("The referral does not exist");
                 }
                 else 
                 {
                     throw;
                 }
             }
-
             return NoContent();
         }
 
-        public bool ReferralExists(long id)
+        //DELETE : api/Referrals/ReferralId
+        [HttpDelete("{id}")]
+        
+        public async Task<IActionResult> DeleteReferral(int id)
         {
-            return (_dbContext.Referrals ?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
 
+            if (_dbContext.Referrals == null)
+            { 
+                return NotFound("There are no items to display");
+            }
+
+            var referral = await _dbContext.Referrals.FindAsync(id);
+            if (referral == null)
+            { 
+                return NotFound("The referral does not exist");
+            }
+
+            _dbContext.Referrals.Remove(referral);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+
+        }
 
     }
 }

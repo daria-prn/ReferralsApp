@@ -12,7 +12,7 @@
 
         public string Referrer { get; set; }
 
-        public static DateTime Created { get; set; }
+        public DateTime Created { get; set; }
 
         public DateTime? LastModified { get; set; } = null!;
 
